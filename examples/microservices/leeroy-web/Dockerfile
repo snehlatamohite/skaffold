@@ -1,9 +1,7 @@
-ARG BASE
-FROM golang:1.12.9 as builder
+FROM golang:1.12.5-alpine3.9 as builder
 COPY web.go .
-# `skaffold debug` sets SKAFFOLD_GO_GCFLAGS to disable compiler optimizations
-ARG SKAFFOLD_GO_GCFLAGS
-RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o /app .
+RUN export GOARCH=ppc64le && export GO111MODULE=auto && export CGO_ENABLED=0 && go build -o /web .
 
-FROM $BASE
-COPY --from=builder /app .
+FROM alpine:3.9
+CMD ["./web"]
+COPY --from=builder /web .
